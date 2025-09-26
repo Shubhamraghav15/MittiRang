@@ -10,7 +10,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ id, name, short_description, images }: ProductCardProps) {
-  const primaryImage = images[0] || '/uploads/placeholder-shoe.jpg';
+  const primaryImage = images[0] || '/MRLogo.png';
 
   return (
     <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-stone-100">

@@ -1,4 +1,5 @@
 import { Footprints, Heart } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -7,12 +8,18 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-gradient-to-br from-amber-200 to-orange-200 rounded-lg">
-                <Footprints className="w-6 h-6 text-amber-800" />
-              </div>
+              <div className="p-2 rounded-lg transition-all duration-300">
+                            <Image
+                              src="/MRLogo.jpg"   // put your logo in /public/logo.png
+                              alt="Mittirang Logo"
+                              width={80}
+                              height={80}
+                              className="object-contain"
+                            />
+                          </div>
               <div>
                 <h2 className="text-xl font-bold">Mittirang</h2>
-                <p className="text-amber-200 text-sm">Premium Footwear</p>
+                <p className="text-amber-200 text-sm">Walk The Art</p>
               </div>
             </div>
             <p className="text-stone-300 text-sm leading-relaxed">
@@ -31,8 +38,8 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-amber-200">Contact</h3>
             <div className="text-stone-300 text-sm space-y-1">
-              <p>Email: hello@mittirang.com</p>
-              <p>Phone: +91 12345 67890</p>
+              <p>Email: support@mittirang.com</p>
+              <p>Phone: +91 9654226625</p>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Footprints } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Header() {
   return (
@@ -9,14 +10,20 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="p-2 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg group-hover:from-amber-200 group-hover:to-orange-200 transition-all duration-300">
-              <Footprints className="w-6 h-6 text-amber-700" />
+            <div className="p-2 rounded-lg transition-all duration-300">
+              <Image
+                src="/logo.png"   // put your logo in /public/logo.png
+                alt="Mittirang Logo"
+                width={80}
+                height={80}
+                className="object-contain"
+              />
             </div>
             <div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 via-orange-600 to-red-500 bg-clip-text text-transparent">
                 Mittirang
               </h1>
-              <p className="text-xs text-stone-500 -mt-1">Premium Footwear</p>
+              <p className="text-xs text-stone-500 -mt-1">Walk The Art</p>
             </div>
           </Link>
 
