@@ -7,10 +7,11 @@ export async function GET() {
     const products = await allQuery('SELECT * FROM products ORDER BY created_at DESC');
     
     // Parse images JSON for each product
-    const productsWithImages = products.map(product => ({
-      ...product,
-      images: product.images ? JSON.parse(product.images) : []
-    }));
+    const productsWithImages = products.map((product: any) => ({
+  ...product,
+  images: product.images ? JSON.parse(product.images) : []
+}));
+
 
     return NextResponse.json(productsWithImages);
   } catch (error) {
