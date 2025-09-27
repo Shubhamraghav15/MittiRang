@@ -39,7 +39,7 @@ export default function AddProduct() {
 
       if (response.ok) {
         const data = await response.json();
-        return data.filename;
+        return data.url;
       }
       throw new Error('Upload failed');
     });
