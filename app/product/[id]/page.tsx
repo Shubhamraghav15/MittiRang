@@ -16,6 +16,8 @@ interface Product {
   images: string[];
   flipkart_link?: string;
   amazon_link?: string;
+  price: number;
+  sizes: number[];
 }
 
 export default function ProductDetail() {
@@ -23,6 +25,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedSize, setSelectedSize] = useState<number | null>(null);
 
   useEffect(() => {
     if (params.id) {
@@ -78,12 +81,15 @@ export default function ProductDetail() {
     );
   }
 
-  const images = product.images && product.images.length > 0 ? product.images : ['/uploads/placeholder-shoe.jpg'];
+  const images =
+    product.images && product.images.length > 0
+      ? product.images
+      : ['/uploads/placeholder-shoe.jpg'];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50">
       <Header />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Breadcrumb */}
         <div className="mb-8">
@@ -113,7 +119,7 @@ export default function ProductDetail() {
                 </div>
               )}
             </div>
-            
+
             {images.length > 1 && (
               <div>
                 <p className="text-sm font-medium text-stone-700 mb-3">Product Gallery</p>
@@ -135,11 +141,6 @@ export default function ProductDetail() {
                         height={80}
                         className="w-full h-full object-cover"
                       />
-                      {selectedImage === index && (
-                        <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
-                          <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
-                        </div>
-                      )}
                     </button>
                   ))}
                 </div>
@@ -151,12 +152,40 @@ export default function ProductDetail() {
           <div className="space-y-8">
             <div>
               <h1 className="text-4xl font-bold text-stone-800 mb-4">{product.name}</h1>
+
+              {/* Price */}
+              <p className="text-3xl font-semibold text-amber-600 mb-4">
+                ₹{product.price.toLocaleString()}
+              </p>
+
               {product.short_description && (
                 <p className="text-xl text-stone-600 leading-relaxed">
                   {product.short_description}
                 </p>
               )}
             </div>
+
+            {/* Sizes */}
+            {product.sizes && product.sizes.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-semibold text-stone-800 mb-4">Available Sizes</h2>
+                <div className="flex flex-wrap gap-3">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-4 py-2 rounded-xl border text-lg font-medium transition-all ${
+                        selectedSize === size
+                          ? 'bg-amber-600 text-white border-amber-600 shadow-lg scale-105'
+                          : 'bg-white text-stone-700 border-stone-300 hover:border-amber-500 hover:text-amber-600'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {product.description && (
               <div>
@@ -187,7 +216,7 @@ export default function ProductDetail() {
                     <ExternalLink className="w-5 h-5" />
                   </a>
                 )}
-                
+
                 {product.amazon_link && (
                   <a
                     href={product.amazon_link}
