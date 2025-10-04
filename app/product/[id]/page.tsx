@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, ExternalLink, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, ExternalLink, ShoppingCart, Tag } from 'lucide-react';
 
 interface Product {
   id: number;
@@ -16,7 +16,8 @@ interface Product {
   images: string[];
   flipkart_link?: string;
   amazon_link?: string;
-  price: number;
+  price: number;           // MRP
+  sellingprice?: number;   // New: Selling Price (optional)
   sizes: number[];
 }
 
@@ -86,6 +87,23 @@ export default function ProductDetail() {
       ? product.images
       : ['/uploads/placeholder-shoe.jpg'];
 
+  // ---- Pricing logic -------------------------------------------------------
+  const mrp = Number(product.price);
+  const sp = product.sellingprice != null ? Number(product.sellingprice) : NaN;
+
+  const hasValidSP =
+    Number.isFinite(mrp) &&
+    Number.isFinite(sp) &&
+    mrp > 0 &&
+    sp >= 0 &&
+    sp < mrp;
+
+  const discountPercent = hasValidSP
+    ? Math.round(((mrp - sp) / mrp) * 100)
+    : 0;
+
+  // -------------------------------------------------------------------------
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50">
       <Header />
@@ -153,10 +171,27 @@ export default function ProductDetail() {
             <div>
               <h1 className="text-4xl font-bold text-stone-800 mb-4">{product.name}</h1>
 
-              {/* Price */}
-              <p className="text-3xl font-semibold text-amber-600 mb-4">
-                ₹{product.price.toLocaleString()}
-              </p>
+              {/* Pricing UI */}
+              {hasValidSP ? (
+                <div className="mb-4 flex items-end gap-4">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-3xl md:text-4xl font-extrabold text-emerald-600">
+                      ₹{sp.toLocaleString()}
+                    </span>
+                    <span className="text-lg text-stone-400 line-through">
+                      ₹{mrp.toLocaleString()}
+                    </span>
+                  </div>
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-emerald-100 text-emerald-700">
+                    <Tag className="w-4 h-4" />
+                    {discountPercent}% OFF
+                  </span>
+                </div>
+              ) : (
+                <p className="text-3xl font-semibold text-amber-600 mb-4">
+                  ₹{mrp.toLocaleString()}
+                </p>
+              )}
 
               {product.short_description && (
                 <p className="text-xl text-stone-600 leading-relaxed">

@@ -58,6 +58,7 @@ export async function PUT(
       flipkart_link,
       amazon_link,
       price,
+      sellingprice,
       sizes,
     } = body;
 
@@ -72,7 +73,7 @@ export async function PUT(
     await runQuery(
       `UPDATE products 
        SET name = ?, description = ?, short_description = ?, images = ?, 
-           flipkart_link = ?, amazon_link = ?, price = ?, sizes = ?, updated_at = CURRENT_TIMESTAMP
+           flipkart_link = ?, amazon_link = ?, price = ? ,sellingprice = ?, sizes = ?, updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`,
       [
         name,
@@ -82,6 +83,7 @@ export async function PUT(
         flipkart_link ?? null,
         amazon_link ?? null,
         Number(price),
+        Number(sellingprice),
         JSON.stringify(normalizedSizes),
         params.id,
       ]

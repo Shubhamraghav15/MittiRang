@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
       flipkart_link,
       amazon_link,
       price,
+      sellingprice,
       sizes,
     } = body ?? {};
 
@@ -60,6 +61,10 @@ export async function POST(request: NextRequest) {
     if (!Number.isFinite(numPrice)) {
       return NextResponse.json({ error: "Price is required" }, { status: 400 });
     }
+    const numsellingPrice = Number(sellingprice);
+    if (!Number.isFinite(numsellingPrice)) {
+      return NextResponse.json({ error: "Price is required" }, { status: 400 });
+    }
 
     const normalizedImages = Array.isArray(images) ? images : [];
     const normalizedSizes = normalizeSizes(sizes);
@@ -67,7 +72,7 @@ export async function POST(request: NextRequest) {
     // SQLite placeholders are '?', and CURRENT_TIMESTAMP works in SQLite.
     await runQuery(
       `INSERT INTO products
-        (name, description, short_description, images, flipkart_link, amazon_link, price, sizes, created_at, updated_at)
+        (name, description, short_description, images, flipkart_link, amazon_link, price, sellingprice, sizes, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
       [
         name,
@@ -77,6 +82,7 @@ export async function POST(request: NextRequest) {
         flipkart_link ?? null,
         amazon_link ?? null,
         numPrice,
+        numsellingPrice,
         JSON.stringify(normalizedSizes), // store as JSON string in TEXT/JSON column
       ]
     );

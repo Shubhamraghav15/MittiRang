@@ -14,6 +14,7 @@ interface Product {
   flipkart_link?: string | null;
   amazon_link?: string | null;
   price: number;
+  sellingprice: number;
   sizes: number[];
 }
 
@@ -24,6 +25,7 @@ type FormState = {
   flipkart_link: string;
   amazon_link: string;
   price: string; // keep as string in form, convert on submit
+  sellingprice: string;
   sizes: number[];
 };
 
@@ -56,6 +58,7 @@ export default function EditProduct() {
     flipkart_link: "",
     amazon_link: "",
     price: "",
+    sellingprice:"",
     sizes: [],
   });
 
@@ -63,7 +66,7 @@ export default function EditProduct() {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [sellingErr, setSellingErr] = useState<string>("");
   // adjust/add sizes here if you ever expand the catalog
   const shoeSizes: number[] = [5, 6, 7, 8, 9, 10, 11, 12];
 
@@ -92,6 +95,7 @@ export default function EditProduct() {
         flipkart_link: data.flipkart_link ?? "",
         amazon_link: data.amazon_link ?? "",
         price: Number(data.price ?? 0),
+        sellingprice: Number(data.sellingprice ?? 0),
         sizes: normalizedSizes,
       });
 
@@ -102,6 +106,7 @@ export default function EditProduct() {
         flipkart_link: data.flipkart_link ?? "",
         amazon_link: data.amazon_link ?? "",
         price: data.price != null ? String(data.price) : "",
+        sellingprice: data.sellingprice != null ? String(data.sellingprice) : "",
         sizes: normalizedSizes,
       });
 
@@ -117,7 +122,27 @@ export default function EditProduct() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const next = { ...prev, [name]: value };
+
+      if (name === "price" || name === "sellingprice") {
+        const mrp = parseFloat(name === "price" ? value : next.price);
+        const sp  = parseFloat(name === "sellingprice" ? value : next.sellingprice);
+
+        // reset error if either is empty
+        if (!value || !next.price || !next.sellingprice) {
+          setSellingErr("");
+        } else if (Number.isFinite(mrp) && Number.isFinite(sp)) {
+          if (sp >= mrp) setSellingErr("Selling price must be less than MRP.");
+          else if (sp < 0 || mrp < 0) setSellingErr("Prices must be non-negative.");
+          else setSellingErr("");
+        } else {
+          setSellingErr("");
+        }
+      }
+
+      return next;
+    });
   };
 
   const handleSizeToggle = (size: number) => {
@@ -166,6 +191,7 @@ export default function EditProduct() {
     setSaving(true);
     try {
       const priceNum = parseFloat(formData.price);
+      const sellingpriceNum = parseFloat(formData.sellingprice);
       const cleanSizes = normalizeSizes(formData.sizes);
 
       const res = await fetch(`/api/products/${id}`, {
@@ -174,6 +200,7 @@ export default function EditProduct() {
         body: JSON.stringify({
           ...formData,
           price: Number.isFinite(priceNum) ? priceNum : 0,
+          sellingprice: Number.isFinite(sellingpriceNum) ? sellingpriceNum : 0,
           images: Array.isArray(images) ? images : [],
           sizes: cleanSizes,
         }),
@@ -229,7 +256,19 @@ export default function EditProduct() {
       </div>
     );
   }
-
+  const mrp = parseFloat(formData.price);
+  const sp  = parseFloat(formData.sellingprice);
+  const disableSubmit =
+    saving ||
+    uploading ||
+    !formData.name.trim() ||
+    !formData.price ||
+    !formData.sellingprice ||
+    !Number.isFinite(mrp) ||
+    !Number.isFinite(sp) ||
+    sp >= mrp ||
+    mrp < 0 ||
+    sp < 0;
   return (
     <div className="min-h-screen bg-stone-50">
       <header className="bg-white shadow-sm border-b border-stone-200">
@@ -317,7 +356,7 @@ export default function EditProduct() {
                   htmlFor="price"
                   className="block text-sm font-medium text-stone-700 mb-2"
                 >
-                  Price (₹)
+                  MRP (₹)
                 </label>
                 <input
                   id="price"
@@ -331,7 +370,28 @@ export default function EditProduct() {
                   placeholder="Enter product price"
                 />
               </div>
-
+              <div>
+                <label
+                  htmlFor="price"
+                  className="block text-sm font-medium text-stone-700 mb-2"
+                >
+                  Selling Price (₹)
+                </label>
+                <input
+                  id="sellingprice"
+                  name="sellingprice"
+                  type="number"
+                  step="0.01"
+                  required
+                  value={formData.sellingprice}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all"
+                  placeholder="Enter product Selling Price"
+                />
+                {sellingErr && (
+                  <p className="mt-2 text-sm text-red-600">{sellingErr}</p>
+                )}
+              </div>
               {/* Sizes */}
               <div>
                 <label className="block text-sm font-medium text-stone-700 mb-2">
@@ -495,7 +555,7 @@ export default function EditProduct() {
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={saving || uploading}
+              disabled={disableSubmit}
               className="flex items-center px-8 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold rounded-xl hover:from-amber-700 hover:to-orange-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
               <Save className="w-5 h-5 mr-2" />
